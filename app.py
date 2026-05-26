@@ -44,14 +44,7 @@ for p in [
         exist_ok=True
     )
 
-KEY = os.getenv(
-    "GEMINI_API_KEY"
-)
-
-if not KEY:
-    raise Exception(
-        "Missing GEMINI_API_KEY"
-    )
+ 
 
 genai.configure(
     api_key=KEY
