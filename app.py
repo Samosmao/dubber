@@ -47,7 +47,7 @@ for p in [
  
 
 genai.configure(
-    api_key=KEY
+    api_key="AIzaSyBgga9j_RnRNs_Gf5E4UQjfggm-vysOrDg"
 )
 
 app = FastAPI()
