@@ -101,6 +101,7 @@ def extract_audio(
 
     clip.audio.write_audiofile(
         output,
+        verbose=False,
         logger=None
     )
 
@@ -153,8 +154,9 @@ Return JSON ONLY.
 ]
 
 Rules:
-translate to Khmer.
-keep timestamps.
+translate to Khmer only.
+keep timestamps exact.
+return valid JSON array.
 """
 
     model = (
@@ -355,7 +357,9 @@ def merge(
         out,
         codec="libx264",
         audio_codec="aac",
-        preset="ultrafast"
+        preset="ultrafast",
+        verbose=False,
+        logger=None
     )
 
     v.close()
