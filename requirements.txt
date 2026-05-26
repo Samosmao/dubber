@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+google-generativeai
+python-multipart
+moviepy
+pydub
+edge-tts
+imageio-ffmpeg
