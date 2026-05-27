@@ -1,3 +1,4 @@
+cat > /var/www/dubber-main/app.py << 'EOF'
 import os
 import json
 import time
@@ -17,7 +18,6 @@ UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
 TEMP_DIR = "temp"
 
-# បង្កើត Folder ស្វ័យប្រវត្តនៅពេល Server ដំណើរការ
 for p in [UPLOAD_DIR, OUTPUT_DIR, TEMP_DIR]:
     os.makedirs(p, exist_ok=True)
 
@@ -35,31 +35,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🛠️ អនុគមន៍សម្រាប់លុបសម្អាតឯកសារ (Background Task)
 def cleanup_files(filename: str):
     try:
-        # ១. លុបឯកសារ Original នៅក្នុង uploads/
         input_path = os.path.join(UPLOAD_DIR, filename)
         if os.path.exists(input_path):
             os.remove(input_path)
-            
-        # ២. លុបឯកសារលទ្ធផលនៅក្នុង outputs/
         output_path = os.path.join(OUTPUT_DIR, f"kh_{filename}")
         if os.path.exists(output_path):
             os.remove(output_path)
-            
-        # ៣. ជម្រះឯកសារបណ្ដោះអាសន្នទាំងអស់នៅក្នុង temp/
         if os.path.exists(TEMP_DIR):
             for f in os.listdir(TEMP_DIR):
                 file_path = os.path.join(TEMP_DIR, f)
                 if os.path.isfile(file_path):
                     os.remove(file_path)
-                    
         print(f"🎯 ជោគជ័យ: បានសម្អាតឯកសារទាំងអស់របស់ {filename} រួចរាល់ពី Server!")
     except Exception as e:
         print(f"❌ កំហុសក្នុងការសម្អាតឯកសារ: {e}")
 
-# 🌐 ទំព័រដើម (កែប្រែថ្មីដើម្បីកុំឱ្យមានកំហុស FileNotFoundError លើ Render)
 @app.get("/", response_class=HTMLResponse)
 async def home():
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -78,7 +70,6 @@ def transcribe(audio):
     while up.state.name == "PROCESSING":
         time.sleep(2)
         up = genai.get_file(up.name)
-
     prompt = """
 You receive audio. Detect language. Return JSON ONLY inside a list.
 Format:
@@ -87,7 +78,7 @@ Format:
 ]
 Strict Rules: Use EXACT SRT format "HH:MM:SS,mmm". DO NOT confuse minutes with hours.
 """
-    model = genai.GenerativeModel("gemini-3.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     r = model.generate_content(
         [up, prompt],
         generation_config={"response_mime_type": "application/json"}
@@ -104,7 +95,6 @@ async def tts(items, output):
     total = int((sec(items[-1]["end"]) / 1.25) * 1000) + 4000
     final = AudioSegment.silent(total)
     voice = "km-KH-SreymomNeural"
-
     for i, x in enumerate(items):
         mp3 = f"{TEMP_DIR}/{i}.mp3"
         try:
@@ -116,7 +106,6 @@ async def tts(items, output):
             pass
         if os.path.exists(mp3):
             os.remove(mp3)
-            
     final.export(output, format="mp3")
 
 @app.post("/subtitle")
@@ -136,18 +125,15 @@ async def dub_edited(file: UploadFile = File(...), items_json: str = Form(...)):
     audio_orig = f"{TEMP_DIR}/a.mp3"
     dub_voice = f"{TEMP_DIR}/kh.mp3"
     out_video = f"{OUTPUT_DIR}/kh_{file.filename}"
-
     with open(video_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
-
     extract_audio(video_path, audio_orig)
     await tts(items, dub_voice)
-    
     cmd = [
         "ffmpeg", "-y",
         "-i", video_path,
         "-i", dub_voice,
-        "-filter_complex", 
+        "-filter_complex",
         "[0:v]setpts=PTS/1.25[v]; "
         "[0:a]atempo=1.25,lowpass=f=300,volume=0.3[bg]; "
         "[1:a]volume=1.5[kh]; "
@@ -156,9 +142,7 @@ async def dub_edited(file: UploadFile = File(...), items_json: str = Form(...)):
         "-c:v", "libx264", "-c:a", "aac", "-preset", "ultrafast",
         out_video
     ]
-    
     process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
     if process.returncode != 0:
         cmd_fallback = [
             "ffmpeg", "-y",
@@ -170,17 +154,20 @@ async def dub_edited(file: UploadFile = File(...), items_json: str = Form(...)):
             out_video
         ]
         subprocess.run(cmd_fallback)
-
-    # ត្រឡប់ឈ្មោះឯកសារទៅឱ្យ Frontend
     return JSONResponse({"status": "success", "filename": file.filename})
 
-# 📥 Endpoint សម្រាប់ឱ្យអ្នកប្រើប្រាស់ទាញយក រួចប្រព័ន្ធលុបចោលភ្លាមៗ
+@app.get("/preview/{filename}")
+async def preview_video(filename: str):
+    out_video = f"{OUTPUT_DIR}/kh_{filename}"
+    if not os.path.exists(out_video):
+        raise HTTPException(status_code=404, detail="រកមិនឃើញវីដេអូ")
+    return FileResponse(out_video, media_type="video/mp4")
+
 @app.get("/download/{filename}")
 async def download_and_delete(filename: str, background_tasks: BackgroundTasks):
     out_video = f"{OUTPUT_DIR}/kh_{filename}"
     if not os.path.exists(out_video):
         raise HTTPException(status_code=404, detail="រកមិនឃើញវីដេអូ ឬឯកសារនេះត្រូវបានលុបរួចហើយ។")
-    
-    # ដាក់ការងារចូលទៅក្នុង Background ដើម្បីលុបក្រោយប្រព័ន្ធបាញ់ File ទៅ Client ចប់
     background_tasks.add_task(cleanup_files, filename)
     return FileResponse(out_video, media_type="video/mp4", filename=f"khmer_{filename}")
+EOF
