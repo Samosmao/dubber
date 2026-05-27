@@ -17,6 +17,7 @@ UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
 TEMP_DIR = "temp"
 
+# បង្កើត Folder ស្វ័យប្រវត្តនៅពេល Server ដំណើរការ
 for p in [UPLOAD_DIR, OUTPUT_DIR, TEMP_DIR]:
     os.makedirs(p, exist_ok=True)
 
@@ -34,7 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# អនុគមន៍សម្រាប់លុបឯកសារបណ្ដោះអាសន្ន និងឯកសារលទ្ធផល
+# 🛠️ អនុគមន៍សម្រាប់លុបសម្អាតឯកសារ (Background Task)
 def cleanup_files(filename: str):
     try:
         # ១. លុបឯកសារ Original នៅក្នុង uploads/
@@ -47,24 +48,25 @@ def cleanup_files(filename: str):
         if os.path.exists(output_path):
             os.remove(output_path)
             
-        # ៣. ជម្រះឯកសារផ្សេងៗនៅក្នុង temp/
+        # ៣. ជម្រះឯកសារបណ្ដោះអាសន្នទាំងអស់នៅក្នុង temp/
         if os.path.exists(TEMP_DIR):
             for f in os.listdir(TEMP_DIR):
                 file_path = os.path.join(TEMP_DIR, f)
                 if os.path.isfile(file_path):
                     os.remove(file_path)
                     
-        print(f"🎯 ជោគជ័យ: បានសម្អាតឯកសារទាំងអស់របស់ {filename} រួចរាល់។")
+        print(f"🎯 ជោគជ័យ: បានសម្អាតឯកសារទាំងអស់របស់ {filename} រួចរាល់ពី Server!")
     except Exception as e:
         print(f"❌ កំហុសក្នុងការសម្អាតឯកសារ: {e}")
 
+# 🌐 ទំព័រដើម (កែប្រែថ្មីដើម្បីកុំឱ្យមានកំហុស FileNotFoundError លើ Render)
 @app.get("/", response_class=HTMLResponse)
 async def home():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     html_path = os.path.join(current_dir, "index.html")
-    
-    with open(html_path, "r", encoding="utf8") as f:
-        return f.read()
+    if not os.path.exists(html_path):
+        raise HTTPException(status_code=404, detail="រកមិនឃើញឯកសារ index.html ឡើយ")
+    return FileResponse(html_path)
 
 def extract_audio(video, output):
     clip = VideoFileClip(video)
@@ -169,16 +171,16 @@ async def dub_edited(file: UploadFile = File(...), items_json: str = Form(...)):
         ]
         subprocess.run(cmd_fallback)
 
-    # ត្រឡប់ឈ្មោះឯកសារទៅឱ្យ Frontend ដើម្បីឱ្យវាដឹងលីងសម្រាប់ទាញយកពិតប្រាកដ
+    # ត្រឡប់ឈ្មោះឯកសារទៅឱ្យ Frontend
     return JSONResponse({"status": "success", "filename": file.filename})
 
-# Endpoint ថ្មីសម្រាប់ដំណើរការ Download រួចលុបចោលភ្លាមៗ
+# 📥 Endpoint សម្រាប់ឱ្យអ្នកប្រើប្រាស់ទាញយក រួចប្រព័ន្ធលុបចោលភ្លាមៗ
 @app.get("/download/{filename}")
 async def download_and_delete(filename: str, background_tasks: BackgroundTasks):
     out_video = f"{OUTPUT_DIR}/kh_{filename}"
     if not os.path.exists(out_video):
         raise HTTPException(status_code=404, detail="រកមិនឃើញវីដេអូ ឬឯកសារនេះត្រូវបានលុបរួចហើយ។")
     
-    # ដាក់ Task ចូល Background ដើម្បីដំណើរការក្រោយ File បញ្ជូនចប់
+    # ដាក់ការងារចូលទៅក្នុង Background ដើម្បីលុបក្រោយប្រព័ន្ធបាញ់ File ទៅ Client ចប់
     background_tasks.add_task(cleanup_files, filename)
     return FileResponse(out_video, media_type="video/mp4", filename=f"khmer_{filename}")
