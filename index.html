@@ -1,494 +1,236 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="km">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇰🇭 Khmer AI Dubber</title>
+    <title>Khmer AI Video Dubber Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        }
-
-        .glass {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(148, 163, 184, 0.1);
-        }
-
-        .table-container {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .table-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .table-container::-webkit-scrollbar-track {
-            background: rgba(51, 65, 85, 0.2);
-            border-radius: 10px;
-        }
-
-        .table-container::-webkit-scrollbar-thumb {
-            background: rgba(100, 116, 139, 0.4);
-            border-radius: 10px;
-        }
-
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 116, 139, 0.6);
-        }
-
-        .editable-cell {
-            cursor: text;
-            transition: all 0.2s ease;
-            padding: 8px 12px;
-        }
-
-        .editable-cell:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-radius: 6px;
-        }
-
-        .editable-input {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            padding: 8px 12px;
-            border-radius: 6px;
-            color: white;
-            width: 100%;
-            font-size: 14px;
-        }
-
-        .editable-input:focus {
-            outline: none;
-            border-color: rgb(59, 130, 246);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
-        }
-
-        .progress-bar {
-            height: 3px;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            border-radius: 3px;
-            animation: progress 2s ease-in-out infinite;
-        }
-
-        @keyframes progress {
-            0%, 100% { width: 0%; }
-            50% { width: 100%; }
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .badge-processing {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-        }
-
-        .badge-success {
-            background: rgba(34, 197, 94, 0.2);
-            color: #86efac;
-        }
-
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-        }
-
-        .video-container video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+        body { font-family: 'Kantumruy Pro', sans-serif; background: #0b0f19; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
     </style>
 </head>
-<body class="text-slate-100">
+<body class="text-slate-100 min-h-screen antialiased">
 
-<div class="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-7xl mx-auto px-4 py-8">
         
-        <!-- Header -->
-        <div class="text-center mb-12">
-            <h1 class="text-6xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
-                🇰🇭 Khmer AI Dubber
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent">
+                Juk AI
             </h1>
-            <p class="text-slate-400 text-lg">Transform any video into Khmer-dubbed masterpiece</p>
+            <p class="text-slate-400 mt-3 text-sm font-medium">
+                Power by juk
+            </p>
         </div>
 
-        <!-- Main Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Left Column: Video Upload & Preview -->
-            <div class="lg:col-span-1 space-y-6">
-                
-                <!-- Upload Section -->
-                <div class="glass rounded-2xl p-8">
-                    <h2 class="text-xl font-bold mb-6 flex items-center">
-                        <span class="text-2xl mr-3">📹</span>
-                        Video Upload
-                    </h2>
+        <div id="progress-container" class="hidden max-w-3xl mx-auto mb-8 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-3">
+                <span id="progress-status" class="text-sm font-semibold text-indigo-400 animate-pulse">កំពុងដំណើរការ...</span>
+                <span id="progress-percent" class="text-lg font-bold text-emerald-400">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-[2px]">
+                <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 to-emerald-500 h-full rounded-full w-0 transition-all duration-300"></div>
+            </div>
+        </div>
 
-                    <div id="dropZone" class="relative">
-                        <input 
-                            id="videoInput" 
-                            type="file" 
-                            accept="video/*" 
-                            class="hidden"
-                        >
-                        
-                        <div class="border-2 border-dashed border-blue-500 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 transition" onclick="document.getElementById('videoInput').click()">
-                            <div class="text-4xl mb-3">📂</div>
-                            <p class="text-slate-300 font-medium">Click to upload or drag & drop</p>
-                            <p class="text-slate-500 text-sm mt-2">MP4, WebM, MOV (Max 2GB)</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            
+            <div class="space-y-8">
+                <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 text-indigo-400">📹 វីដេអូដើម (Original Video)</h2>
+                    
+                    <div class="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                        <video id="preview" controls class="w-full h-full object-contain hidden z-10"></video>
+                        <div id="upload-placeholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                            <span class="text-4xl mb-3">📥</span>
+                            <p class="text-sm font-medium text-slate-300">សូមជ្រើសរើសឯកសារវីដេអូ</p>
                         </div>
                     </div>
 
-                    <div id="fileName" class="mt-4 text-green-400 text-sm hidden flex items-center">
-                        <span class="text-lg mr-2">✓</span>
-                        <span id="fileNameText"></span>
+                    <input id="video" type="file" accept="video/*" class="hidden" onchange="previewVideo()">
+                    <button onclick="document.getElementById('video').click()" class="w-full mt-4 bg-slate-800 hover:bg-slate-700 text-sm font-semibold py-3 px-4 rounded-xl border border-slate-700">
+                        🔍 ជ្រើសរើសវីដេអូ
+                    </button>
+
+                    <div class="grid grid-cols-2 gap-4 mt-6">
+                        <button id="btn-subtitle" onclick="generateSubtitle()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-4 rounded-xl text-sm">
+                            📝 ១. បង្កើត Subtitle
+                        </button>
+                        <button id="btn-dub" onclick="generateDub()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-4 rounded-xl text-sm">
+                            🎙️ ២. ដំណើរការបញ្ចូលសំឡេង
+                        </button>
                     </div>
                 </div>
-
-                <!-- Video Preview -->
-                <div class="glass rounded-2xl p-8">
-                    <h2 class="text-xl font-bold mb-4 flex items-center">
-                        <span class="text-2xl mr-3">👁️</span>
-                        Preview
-                    </h2>
-                    <div class="video-container bg-black rounded-xl overflow-hidden">
-                        <video id="preview" controls class="w-full"></video>
-                    </div>
-                </div>
-
             </div>
 
-            <!-- Right Column: Subtitles & Output -->
-            <div class="lg:col-span-2 space-y-6">
-                
-                <!-- Subtitles Table -->
-                <div class="glass rounded-2xl p-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold flex items-center">
-                            <span class="text-2xl mr-3">📋</span>
-                            Khmer Subtitles
-                        </h2>
-                        <span id="subtitleBadge" class="badge badge-processing hidden">Processing...</span>
+            <div class="space-y-8">
+                <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-sky-400">📝 អត្ថបទរត់ក្រោម (ចុចលើអត្ថបទដើម្បីកែ)</h2>
+                        <button id="btn-download-srt" onclick="downloadSRT()" class="hidden text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 py-1.5 px-3 rounded-lg border border-slate-700">
+                            📥 ទាញយកឯកសារ .SRT
+                        </button>
                     </div>
-
-                    <div class="table-container bg-slate-950 rounded-xl border border-slate-700">
-                        <table class="w-full text-sm">
-                            <thead class="sticky top-0 bg-slate-900 border-b border-slate-700">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-slate-400 font-semibold">Timeline</th>
-                                    <th class="px-6 py-3 text-left text-slate-400 font-semibold">Khmer Text</th>
-                                    <th class="px-6 py-3 text-center text-slate-400 font-semibold w-12">Edit</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subtitleTable" class="divide-y divide-slate-800">
-                                <tr>
-                                    <td colspan="3" class="px-6 py-8 text-center text-slate-500">
-                                        Upload video and click "Process Video" to generate subtitles
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div id="subtitle" class="custom-scroll max-h-[320px] overflow-y-auto text-slate-400 text-sm space-y-4 min-h-[100px] flex flex-col justify-center items-center border border-dashed border-slate-800 rounded-2xl bg-slate-950/40 p-4">
+                        <span class="text-slate-600">មិនទាន់មានទិន្នន័យ...</span>
                     </div>
                 </div>
 
-                <!-- Process Button -->
-                <button 
-                    onclick="processVideo()"
-                    id="processBtn"
-                    class="w-full btn-primary text-white font-bold py-4 px-6 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg"
-                    disabled
-                >
-                    <span id="btnIcon">⚡</span>
-                    <span id="btnText">Process Video (Generate Subtitles & Dub)</span>
-                </button>
-
-                <!-- Output Video -->
-                <div class="glass rounded-2xl p-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-bold flex items-center">
-                            <span class="text-2xl mr-3">🎬</span>
-                            Dubbed Video Output
-                        </h2>
-                        <span id="outputBadge" class="badge badge-success hidden">Ready</span>
+                <div class="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 text-emerald-400">🎬 វីដេអូលទ្ធផល (Output Video)</h2>
+                    <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                        <video id="output" controls class="w-full h-full object-contain hidden"></video>
+                        <span id="output-placeholder" class="text-sm text-slate-600">រង់ចាំការដំណើរការ...</span>
                     </div>
-                    
-                    <div class="video-container bg-black rounded-xl overflow-hidden mb-4">
-                        <video id="output" controls class="w-full"></video>
-                    </div>
-
-                    <a 
-                        id="downloadBtn"
-                        class="btn-secondary w-full text-white font-bold py-3 px-6 rounded-xl text-center hidden block transition"
-                        download
-                    >
-                        ⬇️ Download Dubbed Video
+                    <a id="download" class="hidden w-full mt-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-center py-3.5 rounded-xl font-bold text-sm" href="#">
+                        💾 ទាញយកវីដេអូបញ្ចូលសំឡេងរួច (+25% Sync)
                     </a>
                 </div>
-
             </div>
 
         </div>
-
     </div>
-</div>
 
-<!-- Modal for Editing -->
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-    <div class="glass rounded-2xl p-8 max-w-md w-full mx-4">
-        <h3 class="text-xl font-bold mb-4">Edit Khmer Subtitle</h3>
-        <textarea 
-            id="editInput" 
-            class="editable-input h-24 resize-none mb-4"
-            placeholder="Enter Khmer text..."
-        ></textarea>
-        <div class="flex gap-3">
-            <button 
-                onclick="closeEditModal()"
-                class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition"
-            >
-                Cancel
-            </button>
-            <button 
-                onclick="saveEdit()"
-                class="flex-1 btn-primary text-white font-bold py-2 px-4 rounded-lg transition"
-            >
-                Save
-            </button>
-        </div>
-    </div>
-</div>
+    <script>
+        let selectedFile = null;
+        let subtitleData = [];
 
-<script>
-let videoFile = null;
-let subtitles = [];
-let editingIndex = null;
+        function previewVideo() {
+            selectedFile = document.getElementById("video").files[0];
+            if (!selectedFile) return;
+            const videoElement = document.getElementById("preview");
+            videoElement.src = URL.createObjectURL(selectedFile);
+            videoElement.classList.remove("hidden");
+            document.getElementById("upload-placeholder").classList.add("hidden");
+        }
 
-// Drag & Drop
-const dropZone = document.getElementById('dropZone');
+        function updateProgress(status, percent) {
+            const container = document.getElementById("progress-container");
+            const bar = document.getElementById("progress-bar");
+            document.getElementById("progress-status").innerText = status;
+            document.getElementById("progress-percent").innerText = `${percent}%`;
+            container.classList.remove("hidden");
+            bar.style.width = `${percent}%`;
+        }
 
-dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.style.borderColor = '#60a5fa';
-});
+        function resetProgress() {
+            document.getElementById("progress-container").classList.add("hidden");
+        }
 
-dropZone.addEventListener('dragleave', () => {
-    dropZone.style.borderColor = '#3b82f6';
-});
+        async function generateSubtitle() {
+            if (!selectedFile) return alert("សូមជ្រើសរើសវីដេអូជាមុនសិន!");
+            let fd = new FormData();
+            fd.append("file", selectedFile);
+            updateProgress("Gemini 3.5 ជម្រុញដំណើរការបំប្លែងអត្ថបទ...", 40);
 
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files.length) {
-        document.getElementById('videoInput').files = files;
-        handleVideoSelect();
-    }
-});
+            try {
+                let r = await fetch("/subtitle", { method: "POST", body: fd });
+                if (!r.ok) throw new Error("Server រវល់ ឬទិន្នន័យត្រឡប់មកវិញខុសទម្រង់");
+                subtitleData = await r.json();
+                renderSubtitles();
+                document.getElementById("btn-download-srt").classList.remove("hidden");
+                updateProgress("រួចរាល់!", 100);
+            } catch (err) {
+                alert("កំហុសឆ្គង: " + err.message);
+                resetProgress();
+            } finally {
+                setTimeout(resetProgress, 3000);
+            }
+        }
 
-// Video Input Change
-document.getElementById('videoInput').addEventListener('change', handleVideoSelect);
+        function renderSubtitles() {
+            let html = "";
+            if (subtitleData.length === 0) {
+                html = `<span class="text-slate-600">មិនមានទិន្នន័យឡើយ</span>`;
+            } else {
+                subtitleData.forEach((x, index) => {
+                    html += `
+                    <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-xl space-y-2 w-full text-left">
+                        <div class="text-emerald-400 font-mono text-xs">⏱️ ${x.start} → ${x.end}</div>
+                        <div class="text-slate-400 text-xs">
+                            <span class="text-slate-500 font-bold">Original:</span> 
+                            <span class="cursor-pointer underline decoration-dotted decoration-indigo-500" onclick="makeEditable(this, ${index}, 'original')">${x.original}</span>
+                        </div>
+                        <div class="text-cyan-300 text-sm">
+                            <span class="text-slate-500 text-xs font-bold">Khmer:</span> 
+                            <span class="cursor-pointer underline decoration-dotted decoration-cyan-500 text-cyan-300" onclick="makeEditable(this, ${index}, 'khmer')">${x.khmer}</span>
+                        </div>
+                    </div>`;
+                });
+            }
+            const box = document.getElementById("subtitle");
+            box.innerHTML = html;
+            box.className = "custom-scroll max-h-[320px] overflow-y-auto pr-2 space-y-3 w-full";
+        }
 
-function handleVideoSelect() {
-    videoFile = document.getElementById('videoInput').files[0];
-    if (!videoFile) return;
+        function makeEditable(element, index, field) {
+            const currentText = element.innerText;
+            const input = document.createElement("input");
+            input.type = "text";
+            input.value = currentText;
+            input.className = "bg-slate-800 border border-indigo-500 text-white rounded px-2 py-0.5 w-full text-sm focus:outline-none";
+            
+            function saveChange() {
+                const newValue = input.value.trim() || currentText;
+                subtitleData[index][field] = newValue;
+                renderSubtitles();
+            }
 
-    // Show file name
-    document.getElementById('fileNameText').textContent = videoFile.name;
-    document.getElementById('fileName').classList.remove('hidden');
+            input.addEventListener("blur", saveChange);
+            input.addEventListener("keydown", (e) => { if (e.key === "Enter") saveChange(); });
+            element.replaceWith(input);
+            input.focus();
+        }
 
-    // Preview video
-    const url = URL.createObjectURL(videoFile);
-    document.getElementById('preview').src = url;
+        async function generateDub() {
+            if (!selectedFile || subtitleData.length === 0) return alert("សូមបង្កើត Subtitle ជាមុនសិន!");
+            let fd = new FormData();
+            fd.append("file", selectedFile);
+            fd.append("items_json", JSON.stringify(subtitleData));
 
-    // Enable process button
-    document.getElementById('processBtn').disabled = false;
-}
+            updateProgress("លុបសំឡេងចាស់ & បង្កើតសំឡេងខ្មែរ (ល្បឿន +25%)...", 45);
 
-async function processVideo() {
-    if (!videoFile) {
-        alert('Please upload a video first');
-        return;
-    }
+            try {
+                let r = await fetch("/dub_edited", { method: "POST", body: fd });
+                if (!r.ok) throw new Error("ការផ្គុំវីដេអូបញ្ចូលសំឡេងបរាជ័យ");
 
-    const btn = document.getElementById('processBtn');
-    const icon = document.getElementById('btnIcon');
-    const text = document.getElementById('btnText');
+                updateProgress("រៀបចំឯកសាររួចរាល់សម្រាប់ទាញយក...", 90);
+                let resData = await r.json();
+                updateProgress("ជោគជ័យ!", 100);
 
-    btn.disabled = true;
+   
+                let dl = document.getElementById("download");
+                dl.href = `/download/${resData.filename}`;
+                dl.classList.remove("hidden");
 
-    // Step 1: Generate Subtitles
-    btn.style.opacity = '0.7';
-    icon.textContent = '📝';
-    text.textContent = 'Generating Subtitles...';
-    document.getElementById('subtitleBadge').classList.remove('hidden');
+                dl.onclick = function() {
+                    setTimeout(() => {
+                        alert("⚠️ ឯកសារត្រូវបានលុបចេញពី Server ភ្លាមៗបន្ទាប់ពីទាញយក ដើម្បីសុវត្ថិភាពទិន្នន័យ។");
+                        dl.classList.add("hidden");
+                    }, 2000);
+                };
 
-    try {
-        const formData = new FormData();
-        formData.append('file', videoFile);
+            } catch (err) {
+                alert("កំហុសឆ្គង: " + err.message);
+                resetProgress();
+            } finally {
+                setTimeout(resetProgress, 4000);
+            }
+        }
 
-        const subtitleResponse = await fetch('/subtitle', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!subtitleResponse.ok) throw new Error('Failed to generate subtitles');
-
-        subtitles = await subtitleResponse.json();
-        renderSubtitles();
-
-        // Step 2: Generate Dub
-        icon.textContent = '🎙️';
-        text.textContent = 'Generating Khmer Dub (Processing audio)...';
-
-        const dubFormData = new FormData();
-        dubFormData.append('file', videoFile);
-
-        const dubResponse = await fetch('/dub', {
-            method: 'POST',
-            body: dubFormData
-        });
-
-        if (!dubResponse.ok) throw new Error('Failed to generate dub');
-
-        const blob = await dubResponse.blob();
-        const url = URL.createObjectURL(blob);
-
-        document.getElementById('output').src = url;
-        document.getElementById('downloadBtn').href = url;
-        document.getElementById('downloadBtn').classList.remove('hidden');
-        document.getElementById('outputBadge').classList.remove('hidden');
-
-        icon.textContent = '✓';
-        text.textContent = 'Complete! Video Ready';
-        btn.style.opacity = '1';
-
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Processing failed: ' + error.message);
-        icon.textContent = '⚡';
-        text.textContent = 'Process Video (Generate Subtitles & Dub)';
-        btn.style.opacity = '1';
-    } finally {
-        document.getElementById('subtitleBadge').classList.add('hidden');
-        btn.disabled = false;
-    }
-}
-
-function renderSubtitles() {
-    const tbody = document.getElementById('subtitleTable');
-    
-    if (!subtitles || subtitles.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-slate-500">No subtitles generated</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = subtitles.map((sub, idx) => `
-        <tr class="hover:bg-slate-800 transition">
-            <td class="px-6 py-4 text-blue-400 font-mono text-xs">
-                ${sub.start} → ${sub.end}
-            </td>
-            <td class="px-6 py-4">
-                <span 
-                    class="editable-cell text-cyan-300 font-khmer"
-                    ondblclick="editSubtitle(${idx})"
-                >
-                    ${escapeHtml(sub.khmer)}
-                </span>
-            </td>
-            <td class="px-6 py-4 text-center">
-                <button 
-                    onclick="editSubtitle(${idx})"
-                    class="text-blue-400 hover:text-blue-300 transition text-lg"
-                    title="Double-click or click to edit"
-                >
-                    ✎
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function editSubtitle(index) {
-    editingIndex = index;
-    document.getElementById('editInput').value = subtitles[index].khmer;
-    document.getElementById('editModal').classList.remove('hidden');
-    document.getElementById('editInput').focus();
-}
-
-function closeEditModal() {
-    document.getElementById('editModal').classList.add('hidden');
-    editingIndex = null;
-}
-
-function saveEdit() {
-    if (editingIndex !== null) {
-        subtitles[editingIndex].khmer = document.getElementById('editInput').value;
-        renderSubtitles();
-        closeEditModal();
-    }
-}
-
-// Close modal on ESC key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeEditModal();
-    }
-});
-
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-</script>
-
+        function downloadSRT() {
+            if (subtitleData.length === 0) return;
+            let srtContent = "";
+            subtitleData.forEach((x, i) => { srtContent += `${i + 1}\n${x.start} --> ${x.end}\n${x.khmer}\n\n`; });
+            const blob = new Blob([srtContent], { type: "text/srt;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `subtitles.srt`);
+            link.click();
+        }
+    </script>
 </body>
 </html>
