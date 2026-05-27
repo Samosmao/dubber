@@ -60,7 +60,10 @@ def cleanup_files(filename: str):
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
-    with open("index.html", "r", encoding="utf8") as f:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    html_path = os.path.join(current_dir, "index.html")
+    
+    with open(html_path, "r", encoding="utf8") as f:
         return f.read()
 
 def extract_audio(video, output):
